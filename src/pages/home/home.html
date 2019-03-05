@@ -1,14 +1,55 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      QR scanner
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+  <div *ngIf="availableDevices">
+    <select (change)="onDeviceSelectChange($event.target.value)">
+      <option value="" [selected]="!selectedDevice">No Device</option>
+      <ng-container *ngFor="let device of availableDevices">
+        <option [value]="device.deviceId" [selected]="selectedDevice && device.deviceId === selectedDevice.deviceId">
+          {{ device.label }}</option>
+      </ng-container>
+    </select>
+  </div>
+
+  <div>
+
+    <zxing-scanner #scanner class="test-class" start="true" [device]="selectedDevice"
+      (scanSuccess)="handleQrCodeResult($event)"></zxing-scanner>
+
+    <h2 [hidden]="selectedDevice">No camera selected.</h2>
+
+    <p class="result">
+      Result:
+      <strong>{{ qrResultString }}</strong>
+    </p>
+
+  </div>
+
+  <div *ngIf="(!hasCameras && hasPermission === true)">
+
+    <h1>Looks like your actual device does not has cameras, or I could no find'em. </h1>
+
+  </div>
+
+  <div *ngIf="hasPermission === undefined">
+
+    <h1>Waiting for permissions.</h1>
+
+    <blockquote>
+      <h2>If your device does not has cameras, no permissions will be asked.</h2>
+    </blockquote>
+
+  </div>
+
+  <div *ngIf="hasPermission === false">
+
+    <h1>You denied the camera permissions, we can't scan anything without it. 😪</h1>
+
+  </div>
 </ion-content>
